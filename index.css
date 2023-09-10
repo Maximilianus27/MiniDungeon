@@ -1,0 +1,70 @@
+body{
+  padding: 0;
+  margin: 0;
+  font-family: Sans-Serif;
+  width: 100vw;
+  height: 100dvh;
+  overflow:hidden;
+  
+  background: var(--prim);
+}
+
+:root{
+   --prim:#C5CAE9;
+   --second:#7986CB;
+   --color:#3F51B5;
+}
+
+/* Style Button Action*/
+.btnActions{
+  border: 0;
+  outline: 0;
+  padding: 1em;
+  margin: 1em;
+  background: var(--second);
+  border-radius: 1em;
+  flex-grow: 1;
+  
+  transition: .5s all;
+}
+.btnActions:active{
+   background: var(--color);
+   color: var(--prim);
+   font-weight: bold;
+}
+.actions{
+   width: 100dvw;
+   display: flex;
+   justify-content: space-evenly;
+   
+   position: absolute;
+   bottom: 10vh;
+}
+
+
+/* Log Style */
+.logs{
+   padding: 1em;
+   margin: 1em;
+   background: var(--second);
+   height: 60vh;
+   border-radius: 1em;
+   overflow-y: auto;
+   scroll-snap-align: y center;
+   color: white;
+   scroll-behavior: smooth;
+}
+
+.contHead{
+   max-height: 5vh;
+   overflow: scroll;
+   padding: 1em;
+   margin: 0;
+   background: var(--second);
+   color: white;
+   display: flex;
+   justify-content: space-between;
+}
+.contHead *{
+   margin: 0;
+}
