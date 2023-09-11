@@ -48,7 +48,8 @@ body{
    padding: 1em;
    margin: 1em;
    background: var(--second);
-   height: 60vh;
+   max-height: 60dvh;
+   height:20dvh;
    border-radius: 1em;
    overflow-y: auto;
    scroll-snap-align: y center;
