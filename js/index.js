@@ -173,6 +173,7 @@ function battle(){
          }
          
       }
+      conditions("idle");
       playerUpdate();
       log.scrollTop = log.scrollHeight;
    };
