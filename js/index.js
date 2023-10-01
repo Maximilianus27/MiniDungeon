@@ -95,10 +95,11 @@ setInterval(function() {
 
 var condition     = "idle";
 var pathCount     = 0;
-var gameOver      = 0;
+var deathCount    = 0;
 var isDoor        = 0.78; //random == find Door = ++path
 
 var prevHealthMob;
+var prevAttackMob;
 var randDropMob;
 var randPath;
 var randDoor;
@@ -110,24 +111,16 @@ exUp.addEventListener("click", explorers);
 open.addEventListener("click", explorers);
 
 
-function battle(){
-   
-   if(player.health <= 0)
-   {
-      logsUpdate(`\n ${mob[monsters].name} telah membunuh mu`, "txt");
-      logsUpdate(`\n Game Over \n`, "over")
-      conditions("over");
-   }
-   
+function battle()
+{
    monsters      = Math.floor(Math.random()*mob.length);
    //log.innerText = "";
    prevHealthMob = mob[monsters].health;
+   prevAttackMob = mob[monsters].attack;
    
    logsUpdate(`Kamu bertemu dengan monster ${mob[monsters].name}`, "battle");
    screenData(mob[monsters], "mob");
-   screenData(`${mob[monsters].name} \n 💟 ${mob[monsters].health}`, "mobHealth");
-   conditions();
-   
+   //screenData(`${mob[monsters].name} \n 💟 ${mob[monsters].health}`, "mobHealth");
    
    atk.onclick    = function attackPlayer()
    {
@@ -150,8 +143,9 @@ function battle(){
             logsUpdate(`[+1 potion]`,"green");
          }
          
-         mob[monsters].health = prevHealthMob + 1;
-         player.experience    ++;
+         mob[monsters].health = prevHealthMob + Math.floor(Math.random()*(20-1))+1;
+         mob[monsters].attack = prevAttackMob + Math.floor(Math.random()*(20-1))+1;
+         player.exp           ++;
          player.attack        ++;
          //log.innerText        = "";
          
@@ -160,37 +154,38 @@ function battle(){
       }
       else
       {
-         player.health -= mob[monsters].attack;
+         let monsterDmg = Math.floor(Math.random() * (mob[monsters].attack - 1)) + 1;
+         player.health -= monsterDmg;
          
-         logsUpdate(`${mob[monsters].name} menyerang mu! point kerusakan sebesar ${mob[monsters].attack}`,"battle");
+         logsUpdate(`${mob[monsters].name} menyerang mu! point kerusakan sebesar ${monsterDmg}`,"battle");
          playerUpdate();
+         conditions("battle");
          
          if(player.health <= 0)
          {
-            logsUpdate(`\n ${mob[monsters].name} telah membunuh mu`, "battle");
-            logsUpdate(`\n Game Over \n`, "over")
+            deathCount++;
+            logsUpdate(`\n ${mob[monsters].name} telah membunuh mu`, "txt");
+            logsUpdate(`\n <p style="background: white;"> Game Over \n`, "over")
             conditions("over");
-         }
-         
+         };
       }
-      conditions("idle");
       playerUpdate();
       log.scrollTop = log.scrollHeight;
    };
    heal.onclick   = function healPlayer()
    {
-      let randHeal      = Math.floor(Math.random()*(10-1))+1;
+      let randHeal      = Math.floor(Math.random()*(10-1))+player.exp;
       
       if(player.potion  > 0)
       {
          player.potion --;
          player.health += randHeal;
          
-         logsUpdate(`[++] Kamu menggunakan kristal penyembuhan dan menambahkan kesehatan sebesar ${randHeal}.`,"green");
+         logsUpdate(`[++] Kamu menggunakan kristal penyembuhan dan menambahkan kesehatan sebesar ${randHeal}.\n`,"green");
       }
       else
       {
-         logsUpdate(`<b> \n Kamu tidak memiliki potion! sisa potion ${player.potion}.</b>`,"battle")
+         logsUpdate(`<b> \n × Kamu tidak memiliki potion! sisa potion ${player.potion}.</b>`,"battle")
       }
       log.scrollTop     = log.scrollHeight;
    };
@@ -210,9 +205,9 @@ function explorers(){
    pathCount++;
    
    if(route >= cBattle && route < 0.7){
-      conditions("danger")
+      conditions("danger");
    }else if(player.health <= 0){
-      conditions("over")
+      conditions("over");
    }else{
       conditions("idle");
    }
@@ -251,6 +246,7 @@ function conditions(c){
       atk.style.display    = "none";
       run.style.display    = "none";
       
+      condition = "idle";
       conditionPath();
    }else if(c == "danger"){
       atk.style.display = "block";
@@ -261,7 +257,10 @@ function conditions(c){
       exLeft.style.display = "none";
       exRight.style.display = "none";
       battle();
+      condition = "battle";
    }else if(c == "over"){
+      if(deathCount > 0){start.innerText = "Re-start";}
+      else{start.innerText = "Start";};
       start.style.display = "block";
       
       atk.style.display = "none";
@@ -272,7 +271,7 @@ function conditions(c){
       exLeft.style.display = "none";
       exRight.style.display = "none";
       
-      //gameOver++;
+      condition = "over";
    }
    
    log.scrollTop = log.scrollHeight;
@@ -283,11 +282,13 @@ function conditionPath(){
    var path = Math.floor(Math.random() * (4-1)) + 1;//1 jalur, 2 jalur, 3 jalur, ..
    // var randDoor = Math.random();
    randPath = Math.random();
+   console.log(randPath + " || " + path)
    
    
    switch(path){
       case 1:
-         if(randPath > 0.7){
+         if(randPath > 0.7 && randPath < 1)
+         {
             exUp.style.display = "block";
             exLeft.style.display = "none";
             exRight.style.display = "none";
@@ -333,7 +334,7 @@ function conditionPath(){
             screenData("F0-9", "imgPath");
             logsUpdate(`Kamu menemukan ruangan di sebelah Kanan.`, "txt");
          }
-         else if(randPath < 0.1)
+         else if(randPath > 0.01)
          {
             exUp.style.display = "none";
             exLeft.style.display = "block";
@@ -362,10 +363,9 @@ function playerUpdate(){
    times.innerText = player.time;
    damage.innerText = player.attack;
    
-   if(player.health <= 0){
-      //log.innerHTML += `<p> \n ${mob[monsters].name} berhasil mengalahkan mu `;
-      logsUpdate("Game Over","over");
-   }
+  // if(player.health <= 0){
+  //   logsUpdate("Game Over","over");
+  // }
 }
 
 function logsUpdate(c, type){
